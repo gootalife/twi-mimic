@@ -1,8 +1,8 @@
 import { AppBar, Button, IconButton, MenuItem, Toolbar, Typography, Menu, Box, Avatar } from '@mui/material'
-import { AccountCircle, Menu as MenuIcon, Logout, Person, FormatListBulleted } from '@mui/icons-material'
+import { Menu as MenuIcon, Logout, Person, FormatListBulleted } from '@mui/icons-material'
 import { useState } from 'react'
 import { DrawerMenu } from 'components/DrawerMenu'
-import { path } from 'utils/path'
+import { PATH, TITLE } from 'utils/const'
 import { useRouter } from 'next/router'
 import { signIn, signOut, useSession } from 'next-auth/react'
 
@@ -28,8 +28,8 @@ export const Header = () => {
           <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }} onClick={toggleDrawer}>
             <MenuIcon />
           </IconButton>
-          <Typography variant="h5" component="div" sx={{ cursor: 'pointer' }} onClick={() => router.push(path.home)}>
-            ToDoApp
+          <Typography variant="h5" component="div" sx={{ cursor: 'pointer' }} onClick={() => router.push(PATH.TOP)}>
+            {TITLE}
           </Typography>
           <Box sx={{ flexGrow: 1 }}></Box>
           {session ? (
@@ -62,16 +62,16 @@ export const Header = () => {
                 <MenuItem
                   onClick={() => {
                     closeMenu()
-                    router.push(path.todo)
+                    router.push(PATH.HOME)
                   }}
                 >
                   <FormatListBulleted sx={{ mr: 1 }} />
-                  <Box>Todo</Box>
+                  <Box>Home</Box>
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
                     closeMenu()
-                    router.push(path.user)
+                    router.push(`${PATH.USER}/${session.user.id}`)
                   }}
                 >
                   <Person sx={{ mr: 1 }} />
@@ -81,7 +81,7 @@ export const Header = () => {
                   onClick={async () => {
                     closeMenu()
                     await signOut()
-                    router.push(path.home)
+                    router.push(PATH.TOP)
                   }}
                 >
                   <Logout sx={{ mr: 1 }} />

@@ -1,11 +1,11 @@
-import { Task } from '@prisma/client'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from 'next-auth'
-import prisma from 'utils/prisma'
-import { authOptions } from './auth/[...nextauth]'
+import prisma from 'lib/prisma'
+import { authOptions } from 'pages/api/auth/[...nextauth]'
+import { TweetAPIParam } from 'utils/dao'
 
 interface ExtendedNextApiRequest extends NextApiRequest {
-  body: Partial<Task>
+  body: TweetAPIParam
 }
 
 const handler = async (req: ExtendedNextApiRequest, res: NextApiResponse) => {
@@ -15,54 +15,56 @@ const handler = async (req: ExtendedNextApiRequest, res: NextApiResponse) => {
     res.status(401).json({})
   } else {
     try {
-      const userId = await prisma.user.findFirst({
-        where: {
-          id: session.user.id
-        }
-      })
-      if (!userId) {
+      if (!session.user.id) {
         res.status(500)
         return
       }
       switch (method) {
         case 'GET':
-          const tasks = await prisma.task.findMany({
+          const tweets = await prisma.tweet.findMany({
             where: {
               userId: session.user.id
-            }
+            },
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  image: true
+                }
+              }
+            },
+            take: 30
           })
-          res.status(200).json(tasks)
-          break
+          res.status(200).json(tweets)
+          return
         case 'POST':
-          await prisma.task.create({
+          await prisma.tweet.create({
             data: {
               userId: session.user.id,
-              title: body.title ?? '',
               content: body.content ?? ''
             }
           })
           res.status(200).json({})
-          break
+          return
         case 'PUT':
-          await prisma.task.update({
+          await prisma.tweet.update({
             where: {
               id: body.id
             },
             data: {
-              title: body.title,
               content: body.content
             }
           })
           res.status(200).json({})
-          break
+          return
         case 'DELETE':
-          await prisma.task.delete({
+          await prisma.tweet.delete({
             where: {
               id: body.id
             }
           })
           res.status(200).json({})
-          break
+          return
       }
     } catch (error) {
       console.log(error)

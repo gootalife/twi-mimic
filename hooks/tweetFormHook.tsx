@@ -1,55 +1,37 @@
 import { Close, Check } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  TextField,
-  DialogActions,
-  Button
-} from '@mui/material'
-import { Task } from '@prisma/client'
+import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Button } from '@mui/material'
+import { Tweet } from '@prisma/client'
 import { useState } from 'react'
 import { useAlert } from 'hooks/alertHook'
 import { useConfirm } from 'hooks/confirmHook'
 
-type TaskFormItem = {
-  title: string
+type TweetFormItem = {
   content: string
 }
 
-type TaskFormHook = [
-  (title: string, text: string, task?: Task) => Promise<TaskFormItem | undefined>,
-  () => JSX.Element
-]
+type TweetFormHook = [(title: string, text: string, tweet?: Tweet) => Promise<TweetFormItem | undefined>, () => JSX.Element]
 
-export const useTaskForm = (): TaskFormHook => {
+export const useTweetForm = (): TweetFormHook => {
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
-  const [task, setTask] = useState<Task | undefined>()
   const [isLoading, setIsLoading] = useState(false)
-  const [resolveCallback, setResolveCallback] = useState<{
-    do: (value: TaskFormItem | PromiseLike<TaskFormItem> | undefined) => void
-  }>({ do: () => {} })
 
-  const [taskTitle, setTaskTitle] = useState('')
-  const [taskContent, setTaskContent] = useState('')
+  const [tweet, setTweet] = useState<Tweet | undefined>()
+  const [resolveCallback, setResolveCallback] = useState<{
+    do: (value: TweetFormItem | PromiseLike<TweetFormItem> | undefined) => void
+  }>({ do: () => {} })
+  const [tweetContent, setTweetContent] = useState('')
 
   const [openAlertDialog, renderAlertDialog] = useAlert()
   const [openConfirmDialog, renderConfirmDialog] = useConfirm()
 
-  const openForm = async (
-    title: string,
-    text: string,
-    task?: Task
-  ): Promise<TaskFormItem | undefined> => {
+  const openForm = async (title: string, text: string, tweet?: Tweet): Promise<TweetFormItem | undefined> => {
     setTitle(title)
     setText(text)
-    setTask(task)
-    setTaskTitle(task?.title ?? '')
-    setTaskContent(task?.content ?? '')
+    setTweet(tweet)
+    setTweetContent(tweet?.content ?? '')
     setIsOpen(true)
     // ボタンを押すまで待機
     return new Promise((resolve) => {
@@ -69,19 +51,19 @@ export const useTaskForm = (): TaskFormHook => {
       setIsLoading(false)
       return
     }
-    if (taskTitle === '' || taskContent === '') {
+    if (tweetContent === '') {
       await openAlertDialog('error', 'Empty exists.')
       setIsLoading(false)
       return
     }
-    if (taskTitle === task?.title && taskContent === task?.content) {
+    if (tweetContent === tweet?.content) {
       await openAlertDialog('error', 'No edit.')
       setIsLoading(false)
       return
     }
     setIsLoading(false)
     setIsOpen(false)
-    resolveCallback.do({ title: taskTitle, content: taskContent })
+    resolveCallback.do({ content: tweetContent })
   }
 
   const renderForm = () => (
@@ -92,18 +74,6 @@ export const useTaskForm = (): TaskFormHook => {
           <DialogContentText>{text}</DialogContentText>
           <TextField
             margin="dense"
-            label="Title"
-            type="text"
-            fullWidth
-            variant="outlined"
-            required
-            onChange={(e) => {
-              setTaskTitle(e.currentTarget.value)
-            }}
-            defaultValue={taskTitle}
-          />
-          <TextField
-            margin="dense"
             label="Content"
             type="text"
             fullWidth
@@ -112,18 +82,13 @@ export const useTaskForm = (): TaskFormHook => {
             multiline
             rows={4}
             onChange={(e) => {
-              setTaskContent(e.currentTarget.value)
+              setTweetContent(e.currentTarget.value)
             }}
-            defaultValue={taskContent}
+            defaultValue={tweetContent}
           />
         </DialogContent>
         <DialogActions>
-          <LoadingButton
-            onClick={validateItem}
-            variant="contained"
-            loading={isLoading}
-            startIcon={<Check />}
-          >
+          <LoadingButton onClick={validateItem} variant="contained" loading={isLoading} startIcon={<Check />}>
             OK
           </LoadingButton>
           <Button onClick={close} variant="outlined" startIcon={<Close />}>

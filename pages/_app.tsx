@@ -6,7 +6,7 @@ import { SessionProvider } from 'next-auth/react'
 
 const theme = createTheme({
   palette: {
-    mode: 'light'
+    mode: 'dark'
   }
 })
 

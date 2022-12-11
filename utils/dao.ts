@@ -1,22 +1,33 @@
-import { Task } from '@prisma/client'
+import { Tweet } from '@prisma/client'
+import { API_BASE_PATH } from 'utils/const'
 
-export const apiPath = {
-  task: '/api/task'
-}
+export type TweetAPIParam = Partial<Pick<Tweet, 'id' | 'content'>>
 
-export const fetchTask = async () => {
-  const res = await fetch(apiPath.task, {
+export type TweetFetchItem = (Tweet & {
+  user: {
+    image: string | null;
+    name: string | null;
+  };
+})
+
+export const fetchTweet = async () => {
+  const res = await fetch(API_BASE_PATH.TWEET, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
     }
   })
-  const tasks = (await res.json()) as Task[]
-  return tasks
+  const tweets = (await res.json()) as (Tweet & {
+    user: {
+      image: string | null;
+      name: string | null;
+    };
+  })[]
+  return tweets
 }
 
-export const insertTask = async (param: Partial<Task>) => {
-  const res = await fetch(apiPath.task, {
+export const insertTweet = async (param: TweetAPIParam) => {
+  const res = await fetch(API_BASE_PATH.TWEET, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -26,8 +37,8 @@ export const insertTask = async (param: Partial<Task>) => {
   return res
 }
 
-export const updateTask = async (param: Partial<Task>) => {
-  const res = await fetch(apiPath.task, {
+export const updateTweet = async (param: TweetAPIParam) => {
+  const res = await fetch(API_BASE_PATH.TWEET, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -37,11 +48,11 @@ export const updateTask = async (param: Partial<Task>) => {
   return res
 }
 
-export const deleteTask = async (id: string,) => {
-  const param: Partial<Task> = {
+export const deleteTweet = async (id: string) => {
+  const param: TweetAPIParam = {
     id: id
   }
-  const res = await fetch(apiPath.task, {
+  const res = await fetch(API_BASE_PATH.TWEET, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'

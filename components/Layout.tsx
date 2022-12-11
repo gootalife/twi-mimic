@@ -10,7 +10,7 @@ export const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <Header />
-      <Container maxWidth="md">
+      <Container maxWidth="sm">
         <main>{children}</main>
       </Container>
     </>

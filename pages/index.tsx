@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import { Button } from '@mui/material'
 import { useRouter } from 'next/router'
-import { path } from 'utils/path'
+import { PATH, TITLE } from 'utils/const'
 import { Edit, Login } from '@mui/icons-material'
 import { Session, unstable_getServerSession } from 'next-auth'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
-import { authOptions } from './api/auth/[...nextauth]'
+import { authOptions } from 'pages/api/auth/[...nextauth]'
 import { signIn } from 'next-auth/react'
 
 type Props = {
@@ -18,18 +18,18 @@ const Index: React.FC<Props> = ({ session }) => {
   return (
     <>
       <Head>
-        <title>ToDoApp</title>
+        <title>{TITLE}</title>
       </Head>
       <h1>Wellcome</h1>
       {session ? (
         <Button
           variant="contained"
           onClick={() => {
-            router.push(path.todo)
+            router.push(PATH.HOME)
           }}
           startIcon={<Edit />}
         >
-          Edit ToDo
+          Go To Home
         </Button>
       ) : (
         <Button
